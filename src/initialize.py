@@ -185,21 +185,17 @@ def start(
     init.startPackageManager()
     init.startPython()
 
+    # yap yap
     print.success(f"Project initialized in {projectName}")
-    print.log(
-        f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`"
-    )
-    print.log(
-        f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`"
-    )
-    print.log(
-        f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)"
-    )
-    print.log(
-        "To run the app, use `python run.py test`. This command will build Vite, and launch a PyWebView window."
-    )
+    print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`")
+    print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`")
+    print.log(f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
+    print.log("To run the app, use `python run.py test`. This command will build Vite, and launch a PyWebView window.")
+    print.empty()
+    print.log("If you're lazy (like me), just copy this code below. Only for macOS/Linux.")
+    print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
+    print.log("For windows powershell.")
+    print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
     print.empty()
     print.success("Made with <3 from Pinpoint Tools Team.")
-    print.warning(
-        "Pyder is in ALPHA!!! Expect there to be bugs. Report them @ https://github.com/PinpointTools/Pyder/issues"
-    )
+    print.warning("Pyder is in ALPHA!!! Expect there to be bugs. Report them @ https://github.com/PinpointTools/Pyder/issues")
