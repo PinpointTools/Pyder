@@ -1,0 +1,205 @@
+import os
+import subprocess
+import sys
+
+import src.print as print
+
+
+class Initialize:
+    def __init__(
+        self, projectName, domainSystem, qtorgtk, framework, variant, packageManager
+    ):
+        self.projectName = projectName
+        self.domainSystem = domainSystem
+        self.framework = framework
+        self.variant = variant
+        self.packageManager = packageManager
+        self.qtorgtk = qtorgtk
+
+    def fileSystem(self):
+        os.makedirs(self.projectName)
+        os.makedirs(f"{self.projectName}/src/backend")
+        os.makedirs(f"{self.projectName}/src/frontend")
+
+    def startPackageManager(self):
+        print.log(f"Installing frontend with {self.packageManager}...")
+        frontend_dir = os.path.join(self.projectName, "src", "frontend")
+
+        if self.framework == "SvelteKit":
+            command = [
+                self.packageManager,
+                "create",
+                "svelte@latest",
+                "src/frontend",
+                "--template",
+                "skeleton",
+                "--types",
+                "ts" if self.variant == "TypeScript" else "js",
+            ]
+        else:
+            templateMap = {
+                ("Vanilla", "JavaScript"): "vanilla",
+                ("Vanilla", "TypeScript"): "vanilla-ts",
+                ("React", "JavaScript"): "react",
+                ("React", "TypeScript"): "react-ts",
+                ("Vue", "JavaScript"): "vue",
+                ("Vue", "TypeScript"): "vue-ts",
+            }
+            template = templateMap.get((self.framework, self.variant))
+
+            if self.packageManager == "npm":
+                command = [
+                    "npm",
+                    "create",
+                    "vite@latest",
+                    "src/frontend",
+                    "--",
+                    "--template",
+                    template,
+                    "--no-interactive",
+                ]
+            else:
+                command = [
+                    self.packageManager,
+                    "create",
+                    "vite@latest",
+                    "src/frontend",
+                    "--template",
+                    template,
+                    "--no-interactive",
+                ]
+
+        subprocess.run(command, cwd=self.projectName, check=True)
+        print.success(f"Frontend scaffolded in {frontend_dir}")
+
+    def startPython(self):
+        def libraries():
+            requiredLibs = ['pywebview; sys_platform != "linux"']
+            if self.qtorgtk == "GTK":
+                requiredLibs.append('pywebview[gtk]; sys_platform == "linux"')
+            else:
+                requiredLibs.append('pywebview[qt]; sys_platform == "linux"')
+            return requiredLibs
+
+        def mainScript():
+            script = f"""import argparse
+import subprocess
+import webview as wv
+from pathlib import Path
+from src.backend.api import API
+
+projectRoot = Path(__file__).resolve().parent
+frontendDir = projectRoot / "src" / "frontend"
+packageManager = "{self.packageManager}"
+
+debugThing = False;
+def frontend(command):
+    if command == "test":
+        subprocess.run([packageManager, "run", "build"], cwd=frontendDir, check=True)
+
+    htmlPath = projectRoot / "src" / "frontend" / "dist" / "index.html"
+    wv.create_window(
+        title="{self.projectName}",
+        url=str(htmlPath),
+        js_api=API(),
+        width=800,
+        height=600,
+    )
+
+    wv.start(
+        http_server=True,
+        private_mode=False,
+        debug=True,
+    )
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", choices=["test"])
+    args = parser.parse_args()
+
+    if args.command == "test":
+        frontend("test")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Interrupted by user")
+        exit(1)"""
+            with open(f"{self.projectName}/run.py", "w") as f:
+                f.write(script)
+
+            apiScript = """import webview as wv
+
+class API:
+    def __init__(self):
+        self.window = wv.active_window()
+
+# All your JS to Python contacting goes to here.
+# If you wanna call a Python script from Javascript:
+#   window.pywebview.api.yourFunction()
+# You can obviously organize the code, using something like
+#   import src.backend.utils.print as print
+"""
+            with open(f"{self.projectName}/src/backend/api.py", "w") as f:
+                f.write(apiScript)
+
+        with open(f"{self.projectName}/requirements.txt", "w") as f:
+            for lib in libraries():
+                f.write(f"{lib}\n")
+
+        mainScript()
+        subprocess.run([sys.executable, "-m", "venv", "venv"], cwd=self.projectName)
+
+        if sys.platform == "win32":
+            subprocess.run(
+                [".\\venv\\Scripts\\pip", "install", "-r", "requirements.txt"],
+                cwd=self.projectName,
+                check=True,
+            )
+        else:
+            subprocess.run(
+                ["./venv/bin/pip", "install", "-r", "requirements.txt"],
+                cwd=self.projectName,
+                check=True,
+            )
+
+
+def start(
+    projectName,
+    domainSystem,
+    qtorgtk,
+    framework,
+    variant,
+    packageManager,
+):
+    init = Initialize(
+        projectName,
+        domainSystem,
+        qtorgtk,
+        framework,
+        variant,
+        packageManager,
+    )
+    init.fileSystem()
+    init.startPackageManager()
+    init.startPython()
+
+    print.success(f"Project initialized in {projectName}")
+    print.log(
+        f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`"
+    )
+    print.log(
+        f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`"
+    )
+    print.log(
+        f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)"
+    )
+    print.log(
+        "To run the app, use `python run.py test`. This command will build Vite, and launch a PyWebView window."
+    )
+    print.empty()
+    print.success("Made with <3 from Pinpoint Tools Team.")
+    print.warning(
+        "Pyder is in ALPHA!!! Expect there to be bugs. Report them @ https://github.com/PinpointTools/Pyder/issues"
+    )
