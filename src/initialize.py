@@ -125,9 +125,9 @@ import os
 class API:
     def __init__(self):
         self.window = wv.active_window()
-        self.appID = "{self.projectName}"
+        self.appID = "{self.domainSystem}.{self.projectName}"
     
-    def getOS(self):
+    def getConfigPath(self):
         if sys.platform == "win32":
             configPath = os.path.join(os.getenv("APPDATA"), self.appID)
         elif sys.platform == "darwin":
