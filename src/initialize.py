@@ -251,7 +251,7 @@ def start(
     print.log("To compile after installing the frontend dependencies, run `venv/bin/python run.py compile` (Linux/macOS) or `venv\\Scripts\\python run.py compile` (Windows).")
     print.empty()
 
-    print.log("Documentation @ https://github.com/PinpointTools/Pyder/tree/main/docs")
+    print.log("Documentation @ https://github.com/PinpointTools/Pyder/wiki")
     print.warning("PLEASE READ THEM. PLEASE.")
     print.empty()
     print.success("Made with <3 from Pinpoint Tools Team.")
