@@ -15,12 +15,6 @@ class Initialize:
         self.variant = variant
         self.packageManager = packageManager
         self.qtorgtk = qtorgtk
-        
-        self.execCommand = []
-        if self.packageManager == "npm":
-            self.execCommand = ["npx"]
-        elif self.packageManager == "pnpm":
-            self.execCommand = ["pnpm", "dlx"]
 
     def fileSystem(self):
         os.makedirs(self.projectName)
@@ -29,52 +23,43 @@ class Initialize:
 
     def startPackageManager(self):
         print.log(f"Installing frontend with {self.packageManager}...")
-        frontend_dir = os.path.join(self.projectName, "src", "frontend")
-
-        if self.framework == "SvelteKit":
-            command = self.execCommand + [
-                "sv", "create", "src/frontend",
-                "--template", "minimal",
-                "--types", "ts" if self.variant == "TypeScript" else "js",
-                "--add", "prettier", "eslint",
-                "--install",
-                self.packageManager
+        frontendDir = os.path.join(self.projectName, "src", "frontend")
+        templateMap = {
+            ("Vanilla", "JavaScript"): "vanilla",
+            ("Vanilla", "TypeScript"): "vanilla-ts",
+            ("Svelte", "JavaScript"): "svelte",
+            ("Svelte", "TypeScript"): "svelte-ts",
+            ("React", "JavaScript"): "react",
+            ("React", "TypeScript"): "react-ts",
+            ("Vue", "JavaScript"): "vue",
+            ("Vue", "TypeScript"): "vue-ts",
+        }
+        template = templateMap.get((self.framework, self.variant))
+        
+        if self.packageManager == "npm":
+            command = [
+                "npm",
+                "create",
+                "vite@latest",
+                "src/frontend",
+                "--",
+                "--template",
+                template,
+                "--no-interactive",
             ]
         else:
-            templateMap = {
-                ("Vanilla", "JavaScript"): "vanilla",
-                ("Vanilla", "TypeScript"): "vanilla-ts",
-                ("React", "JavaScript"): "react",
-                ("React", "TypeScript"): "react-ts",
-                ("Vue", "JavaScript"): "vue",
-                ("Vue", "TypeScript"): "vue-ts",
-            }
-            template = templateMap.get((self.framework, self.variant))
-
-            if self.packageManager == "npm":
-                command = [
-                    "npm",
-                    "create",
-                    "vite@latest",
-                    "src/frontend",
-                    "--",
-                    "--template",
-                    template,
-                    "--no-interactive",
-                ]
-            else:
-                command = [
-                    self.packageManager,
-                    "create",
-                    "vite@latest",
-                    "src/frontend",
-                    "--template",
-                    template,
-                    "--no-interactive",
-                ]
+            command = [
+                self.packageManager,
+                "create",
+                "vite@latest",
+                "src/frontend",
+                "--template",
+                template,
+                "--no-interactive",
+            ]
 
         subprocess.run(command, cwd=self.projectName, check=True)
-        print.success(f"Frontend scaffolded in {frontend_dir}")
+        print.success(f"Frontend scaffolded in {frontendDir}")
 
     def startPython(self):
         def libraries():
@@ -174,6 +159,8 @@ class API:
                 cwd=self.projectName,
                 check=True,
             )
+        
+        print.success(f"Backend scaffolded in {self.projectName}/src/backend")
 
 
 def start(
@@ -198,26 +185,16 @@ def start(
 
     # yap yap
     print.success(f"Project initialized in {projectName}")
-    if framework != "SvelteKit":
-        print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`")
-        print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`")
-        print.log(f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
-    else:
-        print.log(f"Your {packageManager} packages are installed at `{projectName}/src/frontend/`. No need to manually install them.")
-        print.log(f"Python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
+    print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`")
+    print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`")
+    print.log(f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
     print.log("To run the app, use `python run.py test`. This command will build Vite, and launch a PyWebView window.")
     print.empty()
     
-    if framework != "SvelteKit":
-        print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
-        print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
-        print.log("For windows powershell.")
-        print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
-    else:
-        print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
-        print.log(f"  cd {projectName} && venv/bin/python run.py test")
-        print.log("For windows powershell.")
-        print.log(f"  cd {projectName} && venv\\Scripts\\python run.py test")
+    print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
+    print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
+    print.log("For windows powershell.")
+    print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
     print.empty()
     
     print.log("Documentation @ https://github.com/PinpointTools/Pyder/tree/main/docs")

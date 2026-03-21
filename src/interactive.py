@@ -47,14 +47,11 @@ class Calls:
             message="Select a framework",
             choices=[
                 "Vanilla",
-                "SvelteKit",
+                "Svelte",
                 "React",
                 "Vue",
             ],
         ).execute()
-        
-        if framework == "SvelteKit":
-            print.warning("SVELTEKIT IS CURRENTLY UNSTABLE. IT WILL BUG.")
         
         return framework
     

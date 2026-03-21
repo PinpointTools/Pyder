@@ -1,7 +1,7 @@
 # Pyder [ ALPHA ]
 Ever wanted Tauri or Wails but wanted Python's backend? Well, fear no more on finding them!
 
-Pyder is a project meant for an alterantive to Wails and Tauri for Python developers who wants to make a webapp with a Framework (SvelteKit, React, Vue, etc...) and a Python backend.
+Pyder is a project meant for an alterantive to Wails and Tauri for Python developers who wants to make a webapp with a Framework (Svelte, React, Vue, etc...) and a Python backend.
 
 > psst, the joke in the project name is pyweb but the Web reference as a spider web and now it's called Pyder.
 
