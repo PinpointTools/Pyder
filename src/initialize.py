@@ -156,8 +156,6 @@ from pathlib import Path
 import webview as wv
 from src.backend.api import API
 
-print("[ PYDER ] Launching the app may take a long time. Our prioritize is to make it stable, not fast, for now.")
-
 if getattr(sys, "frozen", False):
     projectRoot = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
 else:
