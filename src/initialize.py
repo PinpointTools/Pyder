@@ -15,6 +15,12 @@ class Initialize:
         self.variant = variant
         self.packageManager = packageManager
         self.qtorgtk = qtorgtk
+        
+        self.execCommand = []
+        if self.packageManager == "npm":
+            self.execCommand = ["npx"]
+        elif self.packageManager == "pnpm":
+            self.execCommand = ["pnpm", "dlx"]
 
     def fileSystem(self):
         os.makedirs(self.projectName)
@@ -26,15 +32,13 @@ class Initialize:
         frontend_dir = os.path.join(self.projectName, "src", "frontend")
 
         if self.framework == "SvelteKit":
-            command = [
-                self.packageManager,
-                "create",
-                "svelte@latest",
-                "src/frontend",
-                "--template",
-                "skeleton",
-                "--types",
-                "ts" if self.variant == "TypeScript" else "js",
+            command = self.execCommand + [
+                "sv", "create", "src/frontend",
+                "--template", "minimal",
+                "--types", "ts" if self.variant == "TypeScript" else "js",
+                "--add", "prettier", "eslint",
+                "--install",
+                self.packageManager
             ]
         else:
             templateMap = {
@@ -93,7 +97,7 @@ frontendDir = projectRoot / "src" / "frontend"
 packageManager = "{self.packageManager}"
 
 debugThing = False;
-def frontend(command):
+def _call(command):
     if command == "test":
         subprocess.run([packageManager, "run", "build"], cwd=frontendDir, check=True)
 
@@ -118,7 +122,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "test":
-        frontend("test")
+        _call("test")
 
 if __name__ == "__main__":
     try:
@@ -129,18 +133,25 @@ if __name__ == "__main__":
             with open(f"{self.projectName}/run.py", "w") as f:
                 f.write(script)
 
-            apiScript = """import webview as wv
+            apiScript = f"""import webview as wv
+import sys
+import os
 
 class API:
     def __init__(self):
         self.window = wv.active_window()
-
-# All your JS to Python contacting goes to here.
-# If you wanna call a Python script from Javascript:
-#   window.pywebview.api.yourFunction()
-# You can obviously organize the code, using something like
-#   import src.backend.utils.print as print
-"""
+        self.appID = "{self.projectName}"
+    
+    def getOS(self):
+        if sys.platform == "win32":
+            configPath = os.path.join(os.getenv("APPDATA"), self.appID)
+        elif sys.platform == "darwin":
+            configPath = os.path.join(os.getenv("HOME"), "Library", "Application Support", self.appID)
+        elif sys.platform == "linux":
+            configPath = os.path.join(os.getenv("HOME"), ".config", self.appID)
+        else:
+            configPath = os.path.join(os.getenv("HOME"), ".config", self.appID)
+        return configPath"""
             with open(f"{self.projectName}/src/backend/api.py", "w") as f:
                 f.write(apiScript)
 
@@ -187,15 +198,31 @@ def start(
 
     # yap yap
     print.success(f"Project initialized in {projectName}")
-    print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`")
-    print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`")
-    print.log(f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
+    if framework != "SvelteKit":
+        print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`")
+        print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`")
+        print.log(f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
+    else:
+        print.log(f"Your {packageManager} packages are installed at `{projectName}/src/frontend/`. No need to manually install them.")
+        print.log(f"Python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
     print.log("To run the app, use `python run.py test`. This command will build Vite, and launch a PyWebView window.")
     print.empty()
-    print.log("If you're lazy (like me), just copy this code below. Only for macOS/Linux.")
-    print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
-    print.log("For windows powershell.")
-    print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
+    
+    if framework != "SvelteKit":
+        print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
+        print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
+        print.log("For windows powershell.")
+        print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
+    else:
+        print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
+        print.log(f"  cd {projectName} && venv/bin/python run.py test")
+        print.log("For windows powershell.")
+        print.log(f"  cd {projectName} && venv\\Scripts\\python run.py test")
+    print.empty()
+    
+    print.log("Documentation @ https://github.com/PinpointTools/Pyder/tree/main/docs")
+    print.warning("PLEASE READ THEM. PLEASE.")
     print.empty()
     print.success("Made with <3 from Pinpoint Tools Team.")
     print.warning("Pyder is in ALPHA!!! Expect there to be bugs. Report them @ https://github.com/PinpointTools/Pyder/issues")
+    

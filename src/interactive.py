@@ -52,6 +52,10 @@ class Calls:
                 "Vue",
             ],
         ).execute()
+        
+        if framework == "SvelteKit":
+            print.warning("SVELTEKIT IS CURRENTLY UNSTABLE. IT WILL BUG.")
+        
         return framework
     
     def variant(self):        

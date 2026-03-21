@@ -28,4 +28,3 @@ Starring, contributing, finding bugs to the project is already enough. Your supp
 # Known Issues:
 - Unstable. Still in ALPHA.
 - Icons don't work.
-- No documentation.
