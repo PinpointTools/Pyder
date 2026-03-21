@@ -1,27 +1,20 @@
-To compile a generated Pyder app:
-
-1. Go into your generated project.
-2. Install the frontend dependencies in `src/frontend`.
-3. Run `python run.py compile`.
-
-For local runtime without rebuilding, use `python window.py`. That opens the already-built app from `src/frontend/dist/index.html`.
-
-Example on Linux/macOS:
-
+# Compile your Pyder app.
+To compile your Pyder app, all you need to do (and make sure you're in the same folder as your project) is
 ```bash
-cd my-pyder-app/src/frontend
-npm install
-cd ../..
-venv/bin/python run.py compile
+python run.py compile
 ```
+This commands compiles the app through Vite frontend, and bundles everything with PyInstaller.
 
-Example on Windows PowerShell:
+# PyWebView Problem:
+Depending on your operating system, PyWebView might be screwed up.
 
-```powershell
-cd my-pyder-app\src\frontend
-npm install
-cd ..\..
-venv\Scripts\python run.py compile
-```
+## Windows
+All you need in windows is [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2?form=MA13LH#download) and the app will run perfectly fine.
 
-This command builds the Vite frontend and packages the app with PyInstaller. The packaged app is written to the project's `dist/` directory as a folder-based bundle for faster startup.
+## Linux
+- **GTK: OPENING** - you need `webkit2gtk4.1` in your package manager.
+- **Qt: OPENING** - you need `qtwebkit` or `qt5-qtwebkit`. This has not been tested.
+- **GTK & Qt: COMPILING** - Good luck soldier. I don't even remember what libraries I installed to compile the app.
+
+## macOS
+You don't need anything special to open the app. Just open it.
