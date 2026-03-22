@@ -1,0 +1,60 @@
+name: Pyder Builder
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+env:
+    pythonVersion: 3.14.3
+
+jobs:
+    build:
+        name: Build for ${{ matrix.os-name }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+              include:
+                - os: ubuntu-latest
+                  os-name: Linux Ubuntu
+                  artifact-path: dist/Pyder-Linux
+                  artifact-name: Pyder-Linux
+                - os: windows-latest
+                  os-name: Windows
+                  artifact-path: dist/Pyder-Windows.exe
+                  artifact-name: Pyder-Windows
+                - os: macos-latest
+                  os-name: macOS
+                  artifact-path: dist/Pyder-macOS
+                  artifact-name: Pyder-macOS
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+
+          - name: Set up Python ${{ env.pythonVersion }}
+            uses: actions/setup-python@v4
+            with:
+              python-version: ${{ env.pythonVersion }}
+          
+          - name: Install Python dependencies
+            run: pip install -r requirements.txt
+          
+          - name: Compile with PyInstaller
+            run: pyinstaller build.spec
+
+          - name: Rename Build (Windows)
+            if: runner.os == 'Windows'
+            run: move dist\Pyder.exe ${{ matrix.artifact-path }}
+
+          - name: Rename Build (Linux/macOS)
+            if: runner.os != 'Windows'
+            run: mv dist/Pyder ${{ matrix.artifact-path }}
+
+          - name: Upload Build Artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: ${{ matrix.artifact-name }}
+              path: ${{ matrix.artifact-path }}

@@ -1,0 +1,126 @@
+name: Release Pyder (New Version)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., `0.1.0-alpha.1`, `0.1.0-beta.1`, `0.1.0`.)'
+        required: true
+      prerelease:
+        description: 'Mark as prerelease?'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  pythonVersion: 3.14.3
+
+jobs:
+  release:
+    name: Build for ${{ matrix.os-name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+        fail-fast: false
+        matrix:
+          include:
+            - os: ubuntu-latest
+              os-name: Linux Ubuntu
+              artifact-path: dist/Pyder-Linux
+              artifact-name: Pyder-Linux
+            - os: windows-latest
+              os-name: Windows
+              artifact-path: dist/Pyder-Windows.exe
+              artifact-name: Pyder-Windows
+            - os: macos-latest
+              os-name: macOS
+              artifact-path: dist/Pyder-macOS
+              artifact-name: Pyder-macOS
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.pythonVersion }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.pythonVersion }}
+      
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Compile with PyInstaller
+        run: pyinstaller build.spec
+
+      - name: Rename Build (Windows)
+        if: runner.os == 'Windows'
+        run: move dist\Pyder.exe ${{ matrix.artifact-path }}
+
+      - name: Rename Build (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: mv dist/Pyder ${{ matrix.artifact-path }}
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-path }}
+
+  finalize:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      
+      - name: Generate commit list
+        id: commits
+        run: |
+          git fetch --tags
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)")
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)")
+          fi
+
+          {
+            echo "COMMITS<<END"
+            echo "$COMMITS"
+            echo "END"
+          } >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag (if not exists) # this is p smart actually
+        run: |
+          git fetch --tags
+          if git rev-parse "${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "Tag already exists"
+          else
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git tag -a ${{ inputs.version }} -m "Release ${{ inputs.version }}"
+            git push origin ${{ inputs.version }}
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ inputs.version }}
+          prerelease: ${{ inputs.prerelease }}
+          title: 'Pyder: ${{ inputs.version }}'
+          body: |
+            # Pyder version ${{ inputs.version }}!!!
+            Check out the summarized updates in [CHANGELOG.md](https://github.com/PinpointTools/Pyder/blob/main/CHANGELOG.md)
+
+            ---
+
+            ## Commits
+            ${{ steps.commits.outputs.COMMITS }}
+          files: artifacts/neutralino-binaries/**

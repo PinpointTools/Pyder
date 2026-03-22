@@ -29,8 +29,18 @@ Nothing-burger. 0$ Funded. Free and Open source, fuck paying. Although, if you w
 
 Starring, contributing, finding bugs to the project is already enough. Your suppport matters and we love it.
 
-# Where's the documentation?
+## Where's the documentation?
 It's at [the wiki](https://github.com/PinpointTools/Pyder/wiki)! You can find on how to use Pyder with this.
+
+## Where to download it?
+**Per-commit releases**:
+- Windows: https://nightly.link/PinpointTools/Pyder/workflows/main/main/Pyder-Windows.zip
+- Linux: https://nightly.link/PinpointTools/Pyder/workflows/main/main/Pyder-Linux.zip
+- macOS: https://nightly.link/PinpointTools/Pyder/workflows/main/main/Pyder-macOS.zip
+
+**GitHub releases**:
+- Releases: https://github.com/PinpointTools/Pyder/releases/
+- Latest: https://github.com/PinpointTools/Pyder/releases/latest
 
 # Known Issues:
 - Unstable. Still in ALPHA.
