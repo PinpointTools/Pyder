@@ -1,7 +1,9 @@
 import os
+import shutil
 import subprocess
 import sys
 
+from pathlib import Path
 import src.print as print
 
 class Initialize:
@@ -23,8 +25,18 @@ class Initialize:
 
     def fileSystem(self):
         os.makedirs(self.projectName)
+        os.makedirs(f"{self.projectName}/icon")
         os.makedirs(f"{self.projectName}/src/backend")
         os.makedirs(f"{self.projectName}/src/frontend")
+
+    def copyIcons(self):
+        sourceDir = Path(__file__).resolve().parent.parent / "icon"
+        destinationDir = Path(self.projectName) / "icon"
+
+        for iconName in ("512.png", "512.ico", "512.icns"):
+            shutil.copy2(sourceDir / iconName, destinationDir / iconName)
+
+        print.success(f"Icons copied to {destinationDir}")
 
     def startPackageManager(self):
         print.log(f"Installing frontend with {self.packageManager}...")
@@ -75,8 +87,13 @@ class Initialize:
                 requiredLibs.append('pywebview[qt]; sys_platform == "linux"')
             return requiredLibs
 
+        # start of stupid scripts
         def mainScript():
-            script = f"""import argparse
+            script = f"""# Project initialized with Pyder! @ https://github.com/PinpointTools/Pyder
+# Pyder is a Python-based tool for building cross-platform desktop applications.
+# If you love how Pyder works, please consider starring it on GitHub.
+
+import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -92,6 +109,13 @@ def compileApp():
     buildFrontend()
     separator = ";" if sys.platform == "win32" else ":"
     dataArg = f"{{frontendDir / 'dist'}}{{separator}}src/frontend/dist"
+    iconArg = f"{{'icon'}}{{separator}}icon"
+    if sys.platform == "win32":
+        pyinstallerIcon = "icon/512.ico"
+    elif sys.platform == "darwin":
+        pyinstallerIcon = "icon/512.icns"
+    else:
+        pyinstallerIcon = "icon/512.png"
     subprocess.run(
         [
             sys.executable,
@@ -104,6 +128,9 @@ def compileApp():
             "{self.projectName}",
             "--add-data",
             dataArg,
+            "--add-data",
+            iconArg,
+            f"--icon={{pyinstallerIcon}}",
         ],
         cwd=projectRoot,
         check=True,
@@ -157,10 +184,17 @@ import webview as wv
 from src.backend.api import API
 
 if getattr(sys, "frozen", False):
-    projectRoot = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+    projectRoot = Path(sys._MEIPASS)
 else:
     projectRoot = Path(__file__).resolve().parent
 distDir = projectRoot / "src" / "frontend" / "dist"
+
+if sys.platform == "win32":
+    iconPath = str(projectRoot / "icon" / "512.ico")
+elif sys.platform == "darwin":
+    iconPath = str(projectRoot / "icon" / "512.icns")
+else:
+    iconPath = str(projectRoot / "icon" / "512.png")
 
 def startWindow():
     htmlPath = distDir / "index.html"
@@ -181,12 +215,15 @@ def startWindow():
         http_server=True,
         private_mode=False,
         debug=not getattr(sys, "frozen", False),
+        icon=iconPath
     )
 
 if __name__ == "__main__":
     startWindow()"""
             with open(f"{self.projectName}/window.py", "w") as f:
                 f.write(windowScript)
+
+        # end of stupid scripts
 
         with open(f"{self.projectName}/requirements.txt", "w") as f:
             for lib in libraries():
@@ -227,6 +264,7 @@ def start(
         packageManager,
     )
     init.fileSystem()
+    init.copyIcons()
     init.startPackageManager()
     init.startPython()
 
@@ -242,11 +280,13 @@ def start(
 
     print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
     print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
-    print.log(f"  cd {projectName} && venv/bin/python window.py")
     print.log("For windows powershell.")
     print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
-    print.log(f"  cd {projectName} && venv\\Scripts\\python window.py")
-    print.log("To compile after installing the frontend dependencies, run `venv/bin/python run.py compile` (Linux/macOS) or `venv\\Scripts\\python run.py compile` (Windows).")
+    print.empty()
+
+    print.log("To compile after installing the frontend dependencies, run:")
+    print.log("  `venv/bin/python run.py compile` (Linux/macOS)")
+    print.log("  `venv\\Scripts\\python run.py compile` (Windows)")
     print.empty()
 
     print.log("Documentation @ https://github.com/PinpointTools/Pyder/wiki")

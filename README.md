@@ -1,5 +1,8 @@
-# Pyder [ ALPHA ]
-Ever wanted Tauri or Wails but wanted Python's backend? Well, fear no more on finding them!
+<div align="center">
+    <img src="icon/512.png" width="150" height="150"/>
+    <h1>Pyder [ ALPHA ]</h1>
+    Ever wanted Tauri or Wails but wanted Python's backend? Well, fear no more on finding them!
+</div>
 
 Pyder is a project meant for an alterantive to Wails and Tauri for Python developers who wants to make a webapp with a Framework (Svelte, React, Vue, etc...) and a Python backend.
 
@@ -25,6 +28,21 @@ Nothing-burger. 0$ Funded. Free and Open source, fuck paying. Although, if you w
 
 Starring, contributing, finding bugs to the project is already enough. Your suppport matters and we love it.
 
+# Where's the documentation?
+It's at [the wiki](https://github.com/PinpointTools/Pyder/wiki)! You can find on how to use Pyder with this.
+
 # Known Issues:
 - Unstable. Still in ALPHA.
-- Icons don't work.
+  - Possibly already stable enough. Might be in Beta.
+- Hot Reload doesn't exist
+  - We're planning on how to do this.
+  - As of right now, we have an idea, and that's when pressing "R" in the terminal, it would rebuild your Vite app and the PyWebView page will reload.
+- `package.json` containing everything like Project and such.
+  - We're planning on something like this, but `pyder-project.json` instead.
+  - It'll contain something like
+```json
+{
+  "projectName": "pyder-project",
+  "domainSystem": "io.github.pinpointtools",
+}
+```
