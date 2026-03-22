@@ -5,7 +5,7 @@ def startTest():
         "projectTest",
         "io.github.pinpointtools",
         "GTK",
-        "Vanilla",
+        "React",
         "TypeScript",
         "pnpm",
     )

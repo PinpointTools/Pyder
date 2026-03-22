@@ -87,7 +87,7 @@ class Initialize:
                 requiredLibs.append('pywebview[qt]; sys_platform == "linux"')
             return requiredLibs
 
-        # start of stupid scripts
+################################ MAIN RUN SCRIPT #########################################
         def mainScript():
             script = f"""# Project initialized with Pyder! @ https://github.com/PinpointTools/Pyder
 # Pyder is a Python-based tool for building cross-platform desktop applications.
@@ -97,6 +97,8 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+import window as w
+import time
 
 projectRoot = Path(__file__).resolve().parent
 frontendDir = projectRoot / "src" / "frontend"
@@ -138,7 +140,7 @@ def compileApp():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["test", "compile"])
+    parser.add_argument("command", choices=["test", "compile", "dev"])
     args = parser.parse_args()
 
     if args.command == "test":
@@ -146,6 +148,14 @@ def main():
         subprocess.run([sys.executable, "window.py"], cwd=projectRoot, check=True)
     if args.command == "compile":
         compileApp()
+    if args.command == "dev":
+        devServer = subprocess.Popen([packageManager, "run", "dev"], cwd=frontendDir)
+        print("Starting dev server...")
+        try:
+            time.sleep(1)
+            w.startWindow(True)
+        finally:
+            devServer.terminate()
 
 if __name__ == "__main__":
     try:
@@ -155,7 +165,9 @@ if __name__ == "__main__":
         exit(1)"""
             with open(f"{self.projectName}/run.py", "w") as f:
                 f.write(script)
+##########################################################################################
 
+#################################### API SCRIPT ##################################
             apiScript = f"""import webview as wv
 import sys
 import os
@@ -177,35 +189,45 @@ class API:
         return configPath"""
             with open(f"{self.projectName}/src/backend/api.py", "w") as f:
                 f.write(apiScript)
+##########################################################################################
 
-            windowScript = f"""import sys
-from pathlib import Path
+################################# WINDOW SCRIPT ########################################
+            windowScript = f"""import os
+import sys
+
 import webview as wv
 from src.backend.api import API
 
 if getattr(sys, "frozen", False):
-    projectRoot = Path(sys._MEIPASS)
+    resourceRoot = os.path.abspath(sys._MEIPASS)
+    projectRoot = os.path.dirname(os.path.abspath(sys.executable))
 else:
-    projectRoot = Path(__file__).resolve().parent
-distDir = projectRoot / "src" / "frontend" / "dist"
+    projectRoot = os.path.dirname(os.path.abspath(__file__))
+    resourceRoot = projectRoot
 
+distDir = os.path.join(resourceRoot, "src", "frontend", "dist")
+
+iconPath = ""
 if sys.platform == "win32":
-    iconPath = str(projectRoot / "icon" / "512.ico")
+    iconPath = os.path.join(resourceRoot, "icon", "512.ico")
 elif sys.platform == "darwin":
-    iconPath = str(projectRoot / "icon" / "512.icns")
+    iconPath = os.path.join(resourceRoot, "icon", "512.icns")
 else:
-    iconPath = str(projectRoot / "icon" / "512.png")
+    iconPath = os.path.join(resourceRoot, "icon", "512.png")
 
-def startWindow():
-    htmlPath = distDir / "index.html"
-    if not htmlPath.exists():
-        raise FileNotFoundError(
-            "Frontend build output was not found. Run `python run.py test` or `python run.py compile` first."
-        )
+def startWindow(dev):
+    if dev:
+        pathToApp = "http://localhost:5173"
+    else:
+        pathToApp = os.path.join(distDir, "index.html")
+        if not os.path.exists(pathToApp):
+            raise FileNotFoundError(
+                "Frontend build output was not found. Run `python run.py test` or `python run.py compile` first."
+            )
 
     wv.create_window(
         title="{self.projectName}",
-        url=str(htmlPath),
+        url=str(pathToApp),
         js_api=API(),
         width=800,
         height=600,
@@ -215,15 +237,33 @@ def startWindow():
         http_server=True,
         private_mode=False,
         debug=not getattr(sys, "frozen", False),
-        icon=iconPath
+        icon=iconPath,
     )
 
 if __name__ == "__main__":
-    startWindow()"""
+    startWindow(False)"""
             with open(f"{self.projectName}/window.py", "w") as f:
                 f.write(windowScript)
+##########################################################################################
+            
+##################################### GIT IGNORE #################################
+            gitIgnore = """# python
+__pycache__
+*.pyc
+build
 
-        # end of stupid scripts
+# npm
+node_modules
+dist
+
+*-lock.yaml
+*-lock.json
+
+# misc
+.env"""
+            with open(f"{self.projectName}/.gitignore", "w") as f:
+                f.write(gitIgnore)
+##########################################################################################
 
         with open(f"{self.projectName}/requirements.txt", "w") as f:
             for lib in libraries():
@@ -279,9 +319,9 @@ def start(
     print.empty()
 
     print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
-    print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py test")
+    print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
     print.log("For windows powershell.")
-    print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py test")
+    print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
     print.empty()
 
     print.log("To compile after installing the frontend dependencies, run:")

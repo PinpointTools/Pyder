@@ -4,6 +4,7 @@
     Ever wanted Tauri or Wails but wanted Python's backend? Well, fear no more on finding them!
 </div>
 
+<br/>
 Pyder is a project meant for an alterantive to Wails and Tauri for Python developers who wants to make a webapp with a Framework (Svelte, React, Vue, etc...) and a Python backend.
 
 > psst, the joke in the project name is pyweb but the Web reference as a spider web and now it's called Pyder.
@@ -33,10 +34,7 @@ It's at [the wiki](https://github.com/PinpointTools/Pyder/wiki)! You can find on
 
 # Known Issues:
 - Unstable. Still in ALPHA.
-  - Possibly already stable enough. Might be in Beta.
-- Hot Reload doesn't exist
-  - We're planning on how to do this.
-  - As of right now, we have an idea, and that's when pressing "R" in the terminal, it would rebuild your Vite app and the PyWebView page will reload.
+  - Possibly already stable enough. Might be in Beta. rebuild your Vite app and the PyWebView page will reload.
 - `package.json` containing everything like Project and such.
   - We're planning on something like this, but `pyder-project.json` instead.
   - It'll contain something like
