@@ -2,10 +2,10 @@ import os
 import shutil
 import subprocess
 import sys
-
 from pathlib import Path
 import src.print as print
 
+SOURCE_ROOT = Path(__file__).resolve().parent.parent
 class Initialize:
     def __init__(
         self,
@@ -23,6 +23,19 @@ class Initialize:
         self.packageManager = packageManager
         self.qtorgtk = qtorgtk
 
+    def getPythonExecutable(self):
+        if not getattr(sys, "frozen", False):
+            return sys.executable
+
+        for candidate in ("python3", "python"):
+            pythonExecutable = shutil.which(candidate)
+            if pythonExecutable:
+                return pythonExecutable
+
+        raise FileNotFoundError(
+            "Python executable was not found in PATH. Install Python and try again."
+        )
+
     def fileSystem(self):
         os.makedirs(self.projectName)
         os.makedirs(f"{self.projectName}/icon")
@@ -30,7 +43,12 @@ class Initialize:
         os.makedirs(f"{self.projectName}/src/frontend")
 
     def copyIcons(self):
-        sourceDir = Path(__file__).resolve().parent.parent / "icon"
+        if getattr(sys, "frozen", False):
+            resourceRoot = os.path.abspath(sys._MEIPASS)
+        else:
+            resourceRoot = str(SOURCE_ROOT)
+
+        sourceDir = Path(resourceRoot) / "icon"
         destinationDir = Path(self.projectName) / "icon"
 
         for iconName in ("512.png", "512.ico", "512.icns"):
@@ -245,7 +263,7 @@ if __name__ == "__main__":
             with open(f"{self.projectName}/window.py", "w") as f:
                 f.write(windowScript)
 ##########################################################################################
-            
+
 ##################################### GIT IGNORE #################################
             gitIgnore = """# python
 __pycache__
@@ -263,6 +281,7 @@ dist
 .env"""
             with open(f"{self.projectName}/.gitignore", "w") as f:
                 f.write(gitIgnore)
+
 ##########################################################################################
 
         with open(f"{self.projectName}/requirements.txt", "w") as f:
@@ -270,17 +289,20 @@ dist
                 f.write(f"{lib}\n")
 
         mainScript()
-        subprocess.run([sys.executable, "-m", "venv", "venv"], cwd=self.projectName)
+        pythonExecutable = self.getPythonExecutable()
+        subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectName, check=True)
 
         if sys.platform == "win32":
+            venvPython = ".\\venv\\Scripts\\python"
             subprocess.run(
-                [".\\venv\\Scripts\\pip", "install", "-r", "requirements.txt"],
+                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
                 cwd=self.projectName,
                 check=True,
             )
         else:
+            venvPython = "./venv/bin/python"
             subprocess.run(
-                ["./venv/bin/pip", "install", "-r", "requirements.txt"],
+                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
                 cwd=self.projectName,
                 check=True,
             )
