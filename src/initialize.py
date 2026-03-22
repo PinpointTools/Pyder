@@ -269,6 +269,7 @@ if __name__ == "__main__":
 __pycache__
 *.pyc
 build
+*venv*
 
 # npm
 node_modules
