@@ -2,7 +2,8 @@ import src.initialize as init
 
 def startTest():
     init.start(
-        "projectTest",
+        "Project Test",
+        "project-test",
         "io.github.pinpointtools",
         "GTK",
         "React",

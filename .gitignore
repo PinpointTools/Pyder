@@ -2,7 +2,7 @@
 *.pyc
 __pycache__
 
-projectTest
+project-test
 
 build
 dist

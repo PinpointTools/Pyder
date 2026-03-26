@@ -19,7 +19,22 @@ class Calls:
             print.error("Project name cannot be empty.")
             exit()
         
-        return projectName
+        # check if `projectName` has spaces, special characters and/or caps
+        if " " in projectName or not projectName.isalnum() or not projectName.islower():
+            # convert:
+            # - spaces -> dashes
+            # - remove special characters
+            # - lowercase everything
+            projectID = "".join(
+                c.lower() if c.isalnum() else "-" if c == " " else ""
+                for c in projectName
+            ).strip("-")
+        
+            print.log(f"`{projectName}` has been converted to `{projectID}` for projectID.")
+        else:
+            projectID = projectName
+        
+        return projectName, projectID
     
     def domainSystem(self):
         domainSystem = inquirer.text(
@@ -109,13 +124,13 @@ class Checks:
 def inOrder():
     calls = Calls()
     
-    projectName = calls.projectName()
+    projectName, projectID = calls.projectName()
     domainSystem = calls.domainSystem()
     qtorgtk = calls.qtorgtk()
     framework = calls.framework()
     variant = calls.variant()
     packageManager = calls.packageManager()
-    return projectName, domainSystem, qtorgtk, framework, variant, packageManager
+    return projectName, projectID, domainSystem, qtorgtk, framework, variant, packageManager
 
 def check(packageManager):
     check = Checks()
@@ -130,7 +145,7 @@ def check(packageManager):
     check.python()
 
 def start():
-    projectName, domainSystem, qtorgtk, framework, variant, packageManager = inOrder()
+    projectName, projectID, domainSystem, qtorgtk, framework, variant, packageManager = inOrder()
     print.empty()
     check(packageManager)
     
@@ -140,6 +155,6 @@ def start():
     ).execute()
     
     if _continue:
-        initialize.start(projectName, domainSystem, qtorgtk, framework, variant, packageManager)
+        initialize.start(projectName, projectID, domainSystem, qtorgtk, framework, variant, packageManager)
     else:
         print.log("Pyder selection cancelled.")

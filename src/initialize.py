@@ -10,13 +10,16 @@ class Initialize:
     def __init__(
         self,
         projectName,
+        projectID,
         domainSystem,
         qtorgtk,
         framework,
         variant,
         packageManager,
     ):
+        
         self.projectName = projectName
+        self.projectID = projectID
         self.domainSystem = domainSystem
         self.framework = framework
         self.variant = variant
@@ -37,10 +40,10 @@ class Initialize:
         )
 
     def fileSystem(self):
-        os.makedirs(self.projectName)
-        os.makedirs(f"{self.projectName}/icon")
-        os.makedirs(f"{self.projectName}/src/backend")
-        os.makedirs(f"{self.projectName}/src/frontend")
+        os.makedirs(self.projectID)
+        os.makedirs(f"{self.projectID}/icon")
+        os.makedirs(f"{self.projectID}/src/backend")
+        os.makedirs(f"{self.projectID}/src/frontend")
 
     def copyIcons(self):
         if getattr(sys, "frozen", False):
@@ -49,7 +52,7 @@ class Initialize:
             resourceRoot = str(SOURCE_ROOT)
 
         sourceDir = Path(resourceRoot) / "icon"
-        destinationDir = Path(self.projectName) / "icon"
+        destinationDir = Path(self.projectID) / "icon"
 
         for iconName in ("512.png", "512.ico", "512.icns"):
             shutil.copy2(sourceDir / iconName, destinationDir / iconName)
@@ -58,7 +61,7 @@ class Initialize:
 
     def startPackageManager(self):
         print.log(f"Installing frontend with {self.packageManager}...")
-        frontendDir = os.path.join(self.projectName, "src", "frontend")
+        frontendDir = os.path.join(self.projectID, "src", "frontend")
         templateMap = {
             ("Vanilla", "JavaScript"): "vanilla",
             ("Vanilla", "TypeScript"): "vanilla-ts",
@@ -93,7 +96,7 @@ class Initialize:
                 "--no-interactive",
             ]
 
-        subprocess.run(command, cwd=self.projectName, check=True)
+        subprocess.run(command, cwd=self.projectID, check=True)
         print.success(f"Frontend scaffolded in {frontendDir}")
 
     def startPython(self):
@@ -117,6 +120,7 @@ import sys
 from pathlib import Path
 import window as w
 import time
+from pyder import *
 
 projectRoot = Path(__file__).resolve().parent
 frontendDir = projectRoot / "src" / "frontend"
@@ -145,7 +149,7 @@ def compileApp():
             "--noconfirm",
             "--windowed",
             "--name",
-            "{self.projectName}",
+            pyder_projectID,
             "--add-data",
             dataArg,
             "--add-data",
@@ -173,7 +177,7 @@ def main():
             time.sleep(1)
             w.startWindow(True)
         finally:
-            devServer.terminate()
+            devServer.kill()
 
 if __name__ == "__main__":
     try:
@@ -181,19 +185,20 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Interrupted by user")
         exit(1)"""
-            with open(f"{self.projectName}/run.py", "w") as f:
+            with open(f"{self.projectID}/run.py", "w") as f:
                 f.write(script)
 ##########################################################################################
 
 #################################### API SCRIPT ##################################
-            apiScript = f"""import webview as wv
+            apiScript = """import webview as wv
 import sys
 import os
+from pyder import *
 
 class API:
     def __init__(self):
         self.window = wv.active_window()
-        self.appID = "{self.domainSystem}.{self.projectName}"
+        self.appID = f"{pyder_domainSystem}.{pyder_projectID}"
 
     def getConfigPath(self):
         if sys.platform == "win32":
@@ -205,13 +210,15 @@ class API:
         else:
             configPath = os.path.join(os.getenv("HOME"), ".config", self.appID)
         return configPath"""
-            with open(f"{self.projectName}/src/backend/api.py", "w") as f:
+            with open(f"{self.projectID}/src/backend/api.py", "w") as f:
                 f.write(apiScript)
 ##########################################################################################
 
 ################################# WINDOW SCRIPT ########################################
-            windowScript = f"""import os
+            windowScript = """import os
 import sys
+import json
+from pyder import *
 
 import webview as wv
 from src.backend.api import API
@@ -244,11 +251,11 @@ def startWindow(dev):
             )
 
     wv.create_window(
-        title="{self.projectName}",
+        title=pyder_projectName,
         url=str(pathToApp),
         js_api=API(),
-        width=800,
-        height=600,
+        width=pyder_window_initSize_v1,
+        height=pyder_window_initSize_v2,
     )
 
     wv.start(
@@ -260,7 +267,7 @@ def startWindow(dev):
 
 if __name__ == "__main__":
     startWindow(False)"""
-            with open(f"{self.projectName}/window.py", "w") as f:
+            with open(f"{self.projectID}/window.py", "w") as f:
                 f.write(windowScript)
 ##########################################################################################
 
@@ -269,6 +276,7 @@ if __name__ == "__main__":
 __pycache__
 *.pyc
 build
+dist
 *venv*
 
 # npm
@@ -280,38 +288,66 @@ dist
 
 # misc
 .env"""
-            with open(f"{self.projectName}/.gitignore", "w") as f:
+            with open(f"{self.projectID}/.gitignore", "w") as f:
                 f.write(gitIgnore)
-
 ##########################################################################################
 
-        with open(f"{self.projectName}/requirements.txt", "w") as f:
+##################################### PYDER PYTHON #################################
+            pyderProject = f"""_pyder_project = [
+    {{
+        "projectName": "{self.projectName}",
+        "domainSystem": "{self.domainSystem}",
+        "projectID": "{self.projectID}",
+        "version": "0.1.0",
+        "window": {{
+            "minSize": [800, 600],
+            "maxSize": [1280, 720],
+            "initSize": [800, 600]
+        }}
+    }}
+]
+
+pyder_projectName = _pyder_project[0]["projectName"]
+pyder_domainSystem = _pyder_project[0]["domainSystem"]
+pyder_projectID = _pyder_project[0]["projectID"]
+pyder_version = _pyder_project[0]["version"]
+
+pyder_window = _pyder_project[0]["window"]
+pyder_window_minSize_v1, pyder_window_minSize_v2 = pyder_window["minSize"]
+pyder_window_maxSize_v1, pyder_window_maxSize_v2 = pyder_window["maxSize"]
+pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
+            with open(f"{self.projectID}/pyder.py", "w") as f:
+                f.write(pyderProject)
+##########################################################################################
+
+        with open(f"{self.projectID}/requirements.txt", "w") as f:
             for lib in libraries():
                 f.write(f"{lib}\n")
 
         mainScript()
         pythonExecutable = self.getPythonExecutable()
-        subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectName, check=True)
+        subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
 
         if sys.platform == "win32":
             venvPython = ".\\venv\\Scripts\\python"
             subprocess.run(
                 [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=self.projectName,
+                cwd=self.projectID,
                 check=True,
             )
         else:
             venvPython = "./venv/bin/python"
             subprocess.run(
                 [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=self.projectName,
+                cwd=self.projectID,
                 check=True,
             )
 
-        print.success(f"Backend scaffolded in {self.projectName}/src/backend")
+        print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
 def start(
     projectName,
+    projectID,
     domainSystem,
     qtorgtk,
     framework,
@@ -320,6 +356,7 @@ def start(
 ):
     init = Initialize(
         projectName,
+        projectID,
         domainSystem,
         qtorgtk,
         framework,
@@ -332,19 +369,19 @@ def start(
     init.startPython()
 
     # yap yap
-    print.success(f"Project initialized in {projectName}")
-    print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectName}/src/frontend/`")
-    print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectName}/src/frontend/`")
-    print.log(f"For python libraries @ `{projectName}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
+    print.success(f"Project initialized in {projectID}")
+    print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectID}/src/frontend/`")
+    print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectID}/src/frontend/`")
+    print.log(f"For python libraries @ `{projectID}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
     print.log("To run the app, use `python run.py test`. This command will build Vite, and then launch `window.py`.")
     print.log("To open the already-built app directly, use `python window.py`.")
     print.log("To compile the app, use `python run.py compile`. This command will build Vite and package `window.py` with PyInstaller.")
     print.empty()
 
     print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
-    print.log(f"  cd {projectName}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
+    print.log(f"  cd {projectID}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
     print.log("For windows powershell.")
-    print.log(f"  cd {projectName}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
+    print.log(f"  cd {projectID}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
     print.empty()
 
     print.log("To compile after installing the frontend dependencies, run:")

@@ -45,12 +45,5 @@ It's at [the wiki](https://github.com/PinpointTools/Pyder/wiki)! You can find on
 # Known Issues:
 - Unstable. Still in ALPHA.
   - Possibly already stable enough. Might be in Beta. rebuild your Vite app and the PyWebView page will reload.
-- `package.json` containing everything like Project and such.
-  - We're planning on something like this, but `pyder-project.json` instead.
-  - It'll contain something like
-```json
-{
-  "projectName": "pyder-project",
-  "domainSystem": "io.github.pinpointtools",
-}
-```
+- Option to add AGENT.md
+  - For the people who code with LLMs (I'm one of them)
