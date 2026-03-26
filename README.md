@@ -14,6 +14,10 @@ Pyder uses three things. `PyWebView`, `NodeJS`, and `Vite`. `PyWebView` to show 
 
 When initialized, `PyWebView`, and `Vite` will be pre-installed with your preferred package manager.
 
+If you're confused, here's a whiteboard on how Pyder works in a nutshell.
+
+<img src="readme/Pyder CLI in a nutshell.png" alt="Pyder CLI in a nutshell"/>
+
 ## How do I install `X` package in Python/Node PM?
 **To install `X` package in Python, all you need to do is:**
 - Be in a virtual environment (`source venv/bin/activate`, or `venv\Scripts\Activate`)
