@@ -17,7 +17,7 @@ class Initialize:
         variant,
         packageManager,
     ):
-        
+
         self.projectName = projectName
         self.projectID = projectID
         self.domainSystem = domainSystem
@@ -25,6 +25,18 @@ class Initialize:
         self.variant = variant
         self.packageManager = packageManager
         self.qtorgtk = qtorgtk
+
+    def resolveCommand(self, command):
+        commandPath = shutil.which(command)
+        if commandPath:
+            return commandPath
+
+        if os.name == "nt":
+            commandPath = shutil.which(f"{command}.cmd")
+            if commandPath:
+                return commandPath
+
+        return command
 
     def getPythonExecutable(self):
         if not getattr(sys, "frozen", False):
@@ -76,7 +88,7 @@ class Initialize:
 
         if self.packageManager == "npm":
             command = [
-                "npm",
+                self.resolveCommand("npm"),
                 "create",
                 "vite@latest",
                 "src/frontend",
@@ -87,7 +99,7 @@ class Initialize:
             ]
         else:
             command = [
-                self.packageManager,
+                self.resolveCommand(self.packageManager),
                 "create",
                 "vite@latest",
                 "src/frontend",
@@ -117,6 +129,7 @@ class Initialize:
 import argparse
 import subprocess
 import sys
+import shutil
 from pathlib import Path
 import window as w
 import time
@@ -126,8 +139,20 @@ projectRoot = Path(__file__).resolve().parent
 frontendDir = projectRoot / "src" / "frontend"
 packageManager = "{self.packageManager}"
 
+def resolveCommand(command):
+    commandPath = shutil.which(command)
+    if commandPath:
+        return commandPath
+
+    if sys.platform == "win32":
+        commandPath = shutil.which(f"{{command}}.cmd")
+        if commandPath:
+            return commandPath
+
+    return command
+
 def buildFrontend():
-    subprocess.run([packageManager, "run", "build"], cwd=frontendDir, check=True)
+    subprocess.run([resolveCommand(packageManager), "run", "build"], cwd=frontendDir, check=True)
 
 def compileApp():
     buildFrontend()
@@ -171,7 +196,7 @@ def main():
     if args.command == "compile":
         compileApp()
     if args.command == "dev":
-        devServer = subprocess.Popen([packageManager, "run", "dev"], cwd=frontendDir)
+        devServer = subprocess.Popen([resolveCommand(packageManager), "run", "dev"], cwd=frontendDir)
         print("Starting dev server...")
         try:
             time.sleep(1)
@@ -329,14 +354,14 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
         subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
 
         if sys.platform == "win32":
-            venvPython = ".\\venv\\Scripts\\python"
+            venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
             subprocess.run(
                 [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
                 cwd=self.projectID,
                 check=True,
             )
         else:
-            venvPython = "./venv/bin/python"
+            venvPython = f"./{self.projectID}/venv/bin/python"
             subprocess.run(
                 [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
                 cwd=self.projectID,
@@ -380,8 +405,10 @@ def start(
 
     print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
     print.log(f"  cd {projectID}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
-    print.log("For windows powershell.")
-    print.log(f"  cd {projectID}\\src\\frontend\\ && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
+    print.log("For windows powershell <7.")
+    print.log(f"  cd project-test\\src\\frontend; if ($?) {{ {packageManager} install }}; if ($?) {{ cd ..\\.. }}; if ($?) {{ venv\\Scripts\\python run.py dev }}")
+    print.log("For windows powershell 7+.")
+    print.log(f"  cd {projectID}\\src\\frontend && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
     print.empty()
 
     print.log("To compile after installing the frontend dependencies, run:")

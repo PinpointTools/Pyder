@@ -15,7 +15,7 @@ This project is a cross-desktop platform to making webapps with python as the ba
     - Selecting between GTK or Qt.
       - This app is built with the intention to make it cross-desktop platform. For Windows, Linux and macOS. GTK and Qt is a option for Linux, as this is required for picking the correct renderer. And this options is only meant for Linux and will be asked in all platform.
     - Selecting frameworks.
-      - The user currently has 4 different options to pick for their project: That being:
+      - The user currently has 4 different options to pick for their project:
         - Vanilla
         - Svelte
         - React
@@ -23,12 +23,11 @@ This project is a cross-desktop platform to making webapps with python as the ba
     - Selecting variant.
       - This being able to use JavaScript or TypeScript.
     - Selecting their NodeJS Package Manager
-      - The user has 2 different options to pick for their project: That being:
+      - The user has 2 different options to pick for their project:
         - npm : NodeJS's default package manager.
         - pnpm : A faster alternative to npm.
-        - 
 - [@src/initialize.py](src/initialize.py)
-  - This is where when the user confirms that it's ready to be initialized, it starts here. This includes:
+  - When the user confirms that it's ready to be initialized, it starts here. This includes:
     - Copying icons.
       - From `{pyderProjectRoot}/icon/*` to `{userProject}/icon/`
     - Creating file structure.
@@ -42,7 +41,7 @@ This project is a cross-desktop platform to making webapps with python as the ba
           - Dev mode being, running the page at `http://localhost:5173`.
           - Compiled mode being, running the page at `src/frontend/dist/index.html`.
       - `run.py`
-        - This is where the user can run the flags like `dev`, `compile`, `test`.
+        - The user can run the flags like `dev`, `compile`, `test`.
           - `dev` flag:
             - This will run the development server in `src/frontend/` from `subprocess.Popen`, which will open the server in a thread.
             - And after a second, it will run pywebview and opening a page at `http://localhost:5173`.
@@ -54,7 +53,7 @@ This project is a cross-desktop platform to making webapps with python as the ba
           - It first builds the app in `src/frontend/` with nothing special. Just doing `npm/pnpm run build`.
           - Then, instead of building for python, it will open the window. That's it.
       - `src/backend/api.py`
-        - This is where the user can do all their Python contacting things. There's only one function and that's getting the user's operating system, and then returning their config path.
+        - The user can do all their Python contacting things. There's only one function and that's getting the user's operating system, and then returning their config path.
       - `.gitignore`
         - This just has the ignores for pnpm, python and other things. Mainly used when the user wants to put their project to GitHub, GitLab, GitBucket, etc...
       - `pyder.py`
@@ -104,7 +103,9 @@ Instead of using [@main.py](main.py), you should use [@tests.py](tests.py) and c
 
 You should NOT touch [@CONTRIBUTING.md](CONTRIBUTING.md), [@README.md](README.md), [@LICENSE](LICENSE), and [@CHANGELOG.md](CHANGELOG.md). These files are not meant to touch by a LLM. Same thing applies to `git` commands too. Except for `git diff`, `git status` and other commands that doesn't change anything.
 
-This project prefers to have every variable and functions to be `camelCase`, as it it widely used around the whole project. Please do NOT use anything other than `camelCase`.
+This project prefers to have every variable and functions to be `camelCase`, as it it widely used around the whole project. Please do NOT use anything other than `camelCase`. Always keep the code readable, simple, and follow my exact coding style I made.
+
+If something isn't clear. Please refer to asking me instead of hallucinating.
 
 ---
 

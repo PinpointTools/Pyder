@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import time
 
@@ -93,22 +94,34 @@ class Calls:
 class Checks:
     def __init__(self):
         pass
+
+    def resolveCommand(self, command):
+        commandPath = shutil.which(command)
+        if commandPath:
+            return commandPath
+
+        if os.name == "nt":
+            commandPath = shutil.which(f"{command}.cmd")
+            if commandPath:
+                return commandPath
+
+        return command
     
     def npm(self):
         try:
-            subprocess.run(["npm", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run([self.resolveCommand("npm"), "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print.success("npm is installed.")
             return True
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             print.error("npm is not installed.")
             return False
     
     def pnpm(self):
         try:
-            subprocess.run(["pnpm", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run([self.resolveCommand("pnpm"), "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print.success("pnpm is installed.")
             return True
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             print.error("pnpm is not installed.")
             return False
 
@@ -117,7 +130,7 @@ class Checks:
             subprocess.run(["python", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print.success("Python is installed.")
             return True
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             print.error("Python is not installed.")
             return False
 

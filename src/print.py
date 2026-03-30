@@ -1,27 +1,27 @@
 from termcolor import colored
 
-def success(m):
-    s = "✓"
-    c = "green"
-    pta(s, c, m)
-def error(m):
-    s = "✗"
-    c = "light_red"
-    pta(s, c, m)
-def log(m):
-    s = "⋯"
-    c = "dark_grey"
-    pta(s, c, m)
-def warning(m):
-    s = "!"
-    c = "yellow"
-    pta(s, c, m)
+def success(message):
+    symbol = "✓"
+    color = "green"
+    pta(symbol, color, message)
+def error(message):
+    symbol = "✗"
+    color = "light_red"
+    pta(symbol, color, message)
+def log(message):
+    symbol = "⋯"
+    color = "dark_grey"
+    pta(symbol, color, message)
+def warning(message):
+    symbol = "!"
+    color = "yellow"
+    pta(symbol, color, message)
 
-def pta(t, c, m):
+def pta(tag, color, message):
     print(
-        colored(f"{t}", c, force_color=True)
+        colored(f"{tag}", color, force_color=True)
         + " " +
-        m
+        message
     )
 
 def empty():
