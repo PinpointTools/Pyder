@@ -116,11 +116,11 @@ jobs:
           prerelease: ${{ inputs.prerelease }}
           title: 'Pyder: ${{ inputs.version }}'
           body: |
-            # Pyder version ${{ inputs.version }}!!!
+            # Pyder version ${{ inputs.version }}.
             Check out the summarized updates in [CHANGELOG.md](https://github.com/PinpointTools/Pyder/blob/main/CHANGELOG.md)
 
             ---
 
             ## Commits
             ${{ steps.commits.outputs.COMMITS }}
-          files: artifacts/neutralino-binaries/**
+          files: artifacts/${{ matrix.artifact-name }}/**

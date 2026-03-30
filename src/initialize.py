@@ -127,16 +127,18 @@ class Initialize:
 # If you love how Pyder works, please consider starring it on GitHub.
 
 import argparse
+import shutil
+import socket
 import subprocess
 import sys
-import shutil
+import time
 from pathlib import Path
 import window as w
-import time
-from pyder import *
 
 projectRoot = Path(__file__).resolve().parent
 frontendDir = projectRoot / "src" / "frontend"
+devServerHost = "localhost"
+devServerPort = 5173
 packageManager = "{self.packageManager}"
 
 def resolveCommand(command):
@@ -148,11 +150,68 @@ def resolveCommand(command):
         commandPath = shutil.which(f"{{command}}.cmd")
         if commandPath:
             return commandPath
-
     return command
 
+packageManager = resolveCommand(packageManager)
 def buildFrontend():
-    subprocess.run([resolveCommand(packageManager), "run", "build"], cwd=frontendDir, check=True)
+    subprocess.run([packageManager, "run", "build"], cwd=frontendDir, check=True)
+
+class SeparateWindow:
+    def waitForDevServer(self, timeoutSeconds=20):
+        deadline = time.time() + timeoutSeconds
+        while time.time() < deadline:
+            try:
+                with socket.create_connection((devServerHost, devServerPort), timeout=1):
+                    return
+            except OSError:
+                time.sleep(0.25)
+                
+        raise TimeoutError(
+            f"Timed out waiting for the frontend dev server at http://{{devServerHost}}:{{devServerPort}}."
+        )
+
+    def launchFrontendDevServerInSeparateWindow(self):
+        if sys.platform == "win32":
+            subprocess.run(
+                [
+                    "cmd",
+                    "/c",
+                    "start",
+                    "Protux Frontend Dev Server",
+                    packageManager,
+                    "run",
+                    "dev",
+                ],
+                cwd=frontendDir,
+                check=True,
+            )
+            return
+    
+        if sys.platform == "darwin":    
+            script = (
+                f'tell application "Terminal" to do script '
+                f'"cd {{frontendDir}} && {{packageManager}} run dev"'
+            )
+            subprocess.run(["osascript", "-e", script], check=True)
+            return
+    
+        for terminal in ("x-terminal-emulator", "gnome-terminal", "konsole", "xterm"):
+            terminalPath = shutil.which(terminal)
+            if terminalPath:
+                subprocess.run(
+                    [terminalPath, "-e", packageManager, "run", "dev"],
+                    cwd=frontendDir,
+                    check=True,
+                )
+                return
+    
+        raise RuntimeError(
+            "Could not find a terminal emulator to launch the frontend dev server. "
+            "Run `python run.py dev backend` in a separate terminal instead."
+        )
+
+def runDevServer():
+    subprocess.run([packageManager, "run", "dev"], cwd=frontendDir, check=True)
 
 def compileApp():
     buildFrontend()
@@ -165,22 +224,28 @@ def compileApp():
         pyinstallerIcon = "icon/512.icns"
     else:
         pyinstallerIcon = "icon/512.png"
+
+    pyinstallerArgs = [
+        sys.executable,
+        "-m",
+        "PyInstaller",
+        "window.py",
+        "--noconfirm",
+        "--windowed",
+        "--name",
+        "protux",
+        "--add-data",
+        dataArg,
+        "--add-data",
+        iconArg,
+        f"--icon={{pyinstallerIcon}}",
+    ]
+
+    if sys.platform == "win32":
+        pyinstallerArgs.extend(["--collect-all", "winpty"])
+
     subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "PyInstaller",
-            "window.py",
-            "--noconfirm",
-            "--windowed",
-            "--name",
-            pyder_projectID,
-            "--add-data",
-            dataArg,
-            "--add-data",
-            iconArg,
-            f"--icon={{pyinstallerIcon}}",
-        ],
+        pyinstallerArgs,
         cwd=projectRoot,
         check=True,
     )
@@ -188,21 +253,26 @@ def compileApp():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=["test", "compile", "dev"])
+    parser.add_argument("target", nargs="?", choices=["window", "server"])
     args = parser.parse_args()
+
+    if args.command != "dev" and args.target is not None:
+        parser.error("`window` and `server` targets are only valid with `python run.py dev`.")
 
     if args.command == "test":
         buildFrontend()
-        subprocess.run([sys.executable, "window.py"], cwd=projectRoot, check=True)
-    if args.command == "compile":
+        w.startWindow()
+    elif args.command == "compile":
         compileApp()
-    if args.command == "dev":
-        devServer = subprocess.Popen([resolveCommand(packageManager), "run", "dev"], cwd=frontendDir)
-        print("Starting dev server...")
-        try:
-            time.sleep(1)
+    elif args.command == "dev":
+        if args.target == "window":
             w.startWindow(True)
-        finally:
-            devServer.kill()
+        elif args.target == "server":
+            runDevServer()
+        else:
+            SeparateWindow().launchFrontendDevServerInSeparateWindow()
+            SeparateWindow().waitForDevServer()
+            w.startWindow(True)
 
 if __name__ == "__main__":
     try:
