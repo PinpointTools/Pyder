@@ -335,7 +335,7 @@ elif sys.platform == "darwin":
 else:
     iconPath = os.path.join(resourceRoot, "icon", "512.png")
 
-def startWindow(dev):
+def startWindow(dev=False):
     if dev:
         pathToApp = "http://localhost:5173"
     else:
@@ -361,7 +361,7 @@ def startWindow(dev):
     )
 
 if __name__ == "__main__":
-    startWindow(False)"""
+    startWindow()"""
             with open(f"{self.projectID}/window.py", "w") as f:
                 f.write(windowScript)
 ##########################################################################################
