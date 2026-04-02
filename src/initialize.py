@@ -134,6 +134,7 @@ import sys
 import time
 from pathlib import Path
 import window as w
+from pyder import *
 
 projectRoot = Path(__file__).resolve().parent
 frontendDir = projectRoot / "src" / "frontend"
@@ -233,7 +234,7 @@ def compileApp():
         "--noconfirm",
         "--windowed",
         "--name",
-        "protux",
+        pyder_projectName,
         "--add-data",
         dataArg,
         "--add-data",
@@ -351,6 +352,7 @@ def startWindow(dev=False):
         js_api=API(),
         width=pyder_window_initSize_v1,
         height=pyder_window_initSize_v2,
+        min_size=(pyder_window_minSize_v1, pyder_window_minSize_v2)
     )
 
     wv.start(
@@ -396,7 +398,6 @@ dist
         "version": "0.1.0",
         "window": {{
             "minSize": [800, 600],
-            "maxSize": [1280, 720],
             "initSize": [800, 600]
         }}
     }}
@@ -409,7 +410,6 @@ pyder_version = _pyder_project[0]["version"]
 
 pyder_window = _pyder_project[0]["window"]
 pyder_window_minSize_v1, pyder_window_minSize_v2 = pyder_window["minSize"]
-pyder_window_maxSize_v1, pyder_window_maxSize_v2 = pyder_window["maxSize"]
 pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
             with open(f"{self.projectID}/pyder.py", "w") as f:
                 f.write(pyderProject)
