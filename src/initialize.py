@@ -380,9 +380,6 @@ dist
 node_modules
 dist
 
-*-lock.yaml
-*-lock.json
-
 # misc
 .env"""
             with open(f"{self.projectID}/.gitignore", "w") as f:
