@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="icon/512.png" width="150" height="150"/>
+    <img src="icon/favicon.png" width="150" height="150"/>
     <h1>Pyder [ ALPHA ]</h1>
     Ever wanted Tauri or Wails but wanted Python's backend? Well, fear no more on finding them!
 </div>
@@ -45,9 +45,3 @@ It's at [the wiki](https://github.com/PinpointTools/Pyder/wiki)! You can find on
 **GitHub releases**:
 - Releases: https://github.com/PinpointTools/Pyder/releases/
 - Latest: https://github.com/PinpointTools/Pyder/releases/latest
-
-# Known Issues:
-- Unstable. Still in ALPHA.
-  - Possibly already stable enough. Might be in Beta. rebuild your Vite app and the PyWebView page will reload.
-- Option to add AGENT.md
-  - For the people who code with LLMs (I'm one of them)
