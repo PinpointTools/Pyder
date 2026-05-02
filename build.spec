@@ -6,17 +6,17 @@ import os
 block_cipher = None
 
 if sys.platform == 'win32':
-  icon_file = os.path.join('icon', '512.ico')
+  icon_file = os.path.join('icon', 'favicon.ico')
 elif sys.platform == 'darwin':
-  icon_file = os.path.join('icon', '512.icns')
+  icon_file = os.path.join('icon', 'favicon.icns')
 else:
-  icon_file = os.path.join('icon', '512.png')
+  icon_file = os.path.join('icon', 'favicon.png')
 
 a = Analysis(
   ['main.py'],
   pathex=[],
   binaries=[],
-  datas=[('icon', 'icon')],
+  datas=[('icon', 'icon'), ('template', 'template')],
   hookspath=[],
   hooksconfig={},
   runtime_hooks=[],
