@@ -1,4 +1,4 @@
-import os
+import shutil
 import src.initialize as init
 import src.print as print
 
@@ -33,7 +33,7 @@ def startTest():
                 "pnpm",
                 False,
             )
-            os.rmdir("project-test")
+            shutil.rmtree("project-test", ignore_errors=True)
 
 if __name__ == "__main__":
     print.warning("THIS IS MEANT FOR TESTING ONLY. DO NOT USE THIS IN PRODUCTION.")
