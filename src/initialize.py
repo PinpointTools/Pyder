@@ -179,25 +179,25 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
         mainScript()
         copyTemplateFiles()
         
-        pythonExecutable = self.getPythonExecutable()
-        subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
-    
-        if sys.platform == "win32":
-            venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
-            subprocess.run(
-                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=self.projectID,
-                check=True,
-            )
-        else:
-            venvPython = f"./{self.projectID}/venv/bin/python"
-            subprocess.run(
-                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=self.projectID,
-                check=True,
-            )
-
         if not self.isTest:
+            pythonExecutable = self.getPythonExecutable()
+            subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
+            
+            if sys.platform == "win32":
+                venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
+                subprocess.run(
+                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
+                    cwd=self.projectID,
+                    check=True,
+                )
+            else:
+                venvPython = f"./{self.projectID}/venv/bin/python"
+                subprocess.run(
+                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
+                    cwd=self.projectID,
+                    check=True,
+                )
+
             print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
 def start(
