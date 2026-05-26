@@ -74,6 +74,7 @@ class Initialize:
     def startPackageManager(self):
         print.log(f"Installing frontend with {self.packageManager}...")
         frontendDir = os.path.join(self.projectID, "src", "frontend")
+        # ("", ""): "",
         templateMap = {
             ("Vanilla", "JavaScript"): "vanilla",
             ("Vanilla", "TypeScript"): "vanilla-ts",
@@ -83,6 +84,20 @@ class Initialize:
             ("React", "TypeScript"): "react-ts",
             ("Vue", "JavaScript"): "vue",
             ("Vue", "TypeScript"): "vue-ts",
+            ("Preact", "JavaScript"): "preact",
+            ("Preact", "TypeScript"): "preact-ts",
+            ("Lit", "JavaScript"): "lit",
+            ("Lit", "TypeScript"): "lit-ts",
+            ("Solid", "JavaScript"): "solid",
+            ("Solid", "TypeScript"): "solid-ts",
+            ("Ember", "JavaScript"): "ember",
+            ("Ember", "TypeScript"): "ember-ts",
+            ("Qwik", "JavaScript"): "qwik",
+            ("Qwik", "TypeScript"): "qwik-ts",
+            ("Amber", "JavaScript"): "amber",
+            ("Amber", "TypeScript"): "amber-ts",
+            ("Marko", "JavaScript"): "marko",
+            ("Marko", "TypeScript"): "marko-ts",
         }
         template = templateMap.get((self.framework, self.variant))
 

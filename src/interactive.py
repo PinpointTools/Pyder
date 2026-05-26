@@ -66,6 +66,13 @@ class Calls:
                 "Svelte",
                 "React",
                 "Vue",
+                "Preact",
+                "Lit",
+                "Solid",
+                "Ember",
+                "Qwik",
+                "Amber",
+                "Marko",
             ],
         ).execute()
         

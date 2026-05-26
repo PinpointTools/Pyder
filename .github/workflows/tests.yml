@@ -1,0 +1,30 @@
+name: Pyder Tests
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+env:
+    pythonVersion: 3.14.3
+
+jobs:
+    build:
+        name: Build for Linux Ubuntu
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+
+          - name: Set up Python ${{ env.pythonVersion }}
+            uses: actions/setup-python@v4
+            with:
+              python-version: ${{ env.pythonVersion }}
+          
+          - name: Install Python dependencies
+            run: pip install -r requirements.txt
+          
+          - name: Run Tests
+            run: python tests.py
