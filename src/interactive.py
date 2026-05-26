@@ -175,6 +175,6 @@ def start():
     ).execute()
     
     if _continue:
-        initialize.start(projectName, projectID, domainSystem, qtorgtk, framework, variant, packageManager, True)
+        initialize.start(projectName, projectID, domainSystem, qtorgtk, framework, variant, packageManager, False)
     else:
         print.log("Pyder selection cancelled.")

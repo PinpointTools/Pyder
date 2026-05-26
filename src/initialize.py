@@ -16,7 +16,7 @@ class Initialize:
         framework,
         variant,
         packageManager,
-        needVenv
+        isTest
     ):
 
         self.projectName = projectName
@@ -26,7 +26,7 @@ class Initialize:
         self.variant = variant
         self.packageManager = packageManager
         self.qtorgtk = qtorgtk
-        self.needVenv = needVenv
+        self.isTest = isTest
 
     def resolveCommand(self, command):
         commandPath = shutil.which(command)
@@ -125,8 +125,11 @@ class Initialize:
                 "--no-interactive",
             ]
 
-        subprocess.run(command, cwd=self.projectID, check=True)
-        print.success(f"Frontend scaffolded in {frontendDir}")
+        if not self.isTest:
+            subprocess.run(command, cwd=self.projectID, check=True)
+            print.success(f"Frontend scaffolded in {frontendDir}")
+        else:
+            subprocess.run(command, cwd=self.projectID, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def startPython(self):
         def mainScript():
@@ -175,7 +178,7 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
         pythonExecutable = self.getPythonExecutable()
         subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
 
-        if self.needVenv:
+        if not self.isTest:
             if sys.platform == "win32":
                 venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
                 subprocess.run(
@@ -221,30 +224,31 @@ def start(
     init.startPython()
 
     # yap yap
-    print.success(f"Project initialized in {projectID}")
-    print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectID}/src/frontend/`")
-    print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectID}/src/frontend/`")
-    print.log(f"For python libraries @ `{projectID}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
-    print.log("To run the app, use `python run.py test`. This command will build Vite, and then launch `window.py`.")
-    print.log("To open the already-built app directly, use `python window.py`.")
-    print.log("To compile the app, use `python run.py compile`. This command will build Vite and package `window.py` with PyInstaller.")
-    print.empty()
-
-    print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
-    print.log(f"  cd {projectID}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
-    print.log("For windows powershell <7.")
-    print.log(f"  cd project-test\\src\\frontend; if ($?) {{ {packageManager} install }}; if ($?) {{ cd ..\\.. }}; if ($?) {{ venv\\Scripts\\python run.py dev }}")
-    print.log("For windows powershell 7+.")
-    print.log(f"  cd {projectID}\\src\\frontend && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
-    print.empty()
-
-    print.log("To compile after installing the frontend dependencies, run:")
-    print.log("  `venv/bin/python run.py compile` (Linux/macOS)")
-    print.log("  `venv\\Scripts\\python run.py compile` (Windows)")
-    print.empty()
-
-    print.log("Documentation @ https://github.com/PinpointTools/Pyder/wiki")
-    print.warning("PLEASE READ THEM. PLEASE.")
-    print.empty()
-    print.success("Made with <3 from Pinpoint Tools Team.")
-    print.warning("Pyder is in ALPHA!!! Expect there to be bugs. Report them @ https://github.com/PinpointTools/Pyder/issues")
+    if not init.isTest:
+        print.success(f"Project initialized in {projectID}")
+        print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectID}/src/frontend/`")
+        print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectID}/src/frontend/`")
+        print.log(f"For python libraries @ `{projectID}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
+        print.log("To run the app, use `python run.py test`. This command will build Vite, and then launch `window.py`.")
+        print.log("To open the already-built app directly, use `python window.py`.")
+        print.log("To compile the app, use `python run.py compile`. This command will build Vite and package `window.py` with PyInstaller.")
+        print.empty()
+    
+        print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
+        print.log(f"  cd {projectID}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
+        print.log("For windows powershell <7.")
+        print.log(f"  cd project-test\\src\\frontend; if ($?) {{ {packageManager} install }}; if ($?) {{ cd ..\\.. }}; if ($?) {{ venv\\Scripts\\python run.py dev }}")
+        print.log("For windows powershell 7+.")
+        print.log(f"  cd {projectID}\\src\\frontend && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
+        print.empty()
+    
+        print.log("To compile after installing the frontend dependencies, run:")
+        print.log("  `venv/bin/python run.py compile` (Linux/macOS)")
+        print.log("  `venv\\Scripts\\python run.py compile` (Windows)")
+        print.empty()
+    
+        print.log("Documentation @ https://github.com/PinpointTools/Pyder/wiki")
+        print.warning("PLEASE READ THEM. PLEASE.")
+        print.empty()
+        print.success("Made with <3 from Pinpoint Tools Team.")
+        print.warning("Pyder is in ALPHA!!! Expect there to be bugs. Report them @ https://github.com/PinpointTools/Pyder/issues")

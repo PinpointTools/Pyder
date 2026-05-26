@@ -32,7 +32,7 @@ def startTest():
                 framework,
                 v,
                 "pnpm",
-                False,
+                True,
             )
             shutil.rmtree("project-test", ignore_errors=True)
             print.success(f"{framework} with {v} successfully tested.")
