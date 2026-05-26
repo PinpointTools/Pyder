@@ -191,7 +191,7 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
                     check=True,
                 )
         else:
-            print("Guessing it's not needed becausue it is a test.")
+            print.log("Guessing it's not needed becausue it is a test.")
 
         print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
