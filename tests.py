@@ -23,6 +23,7 @@ def startTest():
     
     for framework in frameworks:
         for v in variant:
+            print.log(f"Testing {framework} {v}...")
             init.start(
                 "Project Test",
                 "project-test",
@@ -34,6 +35,7 @@ def startTest():
                 False,
             )
             shutil.rmtree("project-test", ignore_errors=True)
+            print.success(f"{framework} with {v} successfully tested.")
 
 if __name__ == "__main__":
     print.warning("THIS IS MEANT FOR TESTING ONLY. DO NOT USE THIS IN PRODUCTION.")
