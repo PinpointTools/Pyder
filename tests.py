@@ -1,5 +1,6 @@
 import os
 import src.initialize as init
+import src.print as print
 
 def startTest():
     frameworks = [
@@ -32,10 +33,14 @@ def startTest():
                 "pnpm",
                 False,
             )
-            os.remove("project-test")
+            os.rmdir("project-test")
 
 if __name__ == "__main__":
-    print("THIS IS MEANT FOR TESTING ONLY. DO NOT USE THIS IN PRODUCTION.")
-    print("THIS WILL TAKE A TOLL OF YOUR INTERNET. SO BE WEARY.")
-    startTest()
-    print("All tests completed successfully.")
+    print.warning("THIS IS MEANT FOR TESTING ONLY. DO NOT USE THIS IN PRODUCTION.")
+    print.warning("THIS WILL TAKE A TOLL OF YOUR INTERNET. SO BE WEARY.")
+    
+    try:
+        startTest()
+        print.success("All tests completed successfully.")
+    except Exception as e:
+        print.error(e)
