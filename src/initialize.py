@@ -71,10 +71,12 @@ class Initialize:
         for iconName in ("favicon.png", "favicon.ico", "favicon.icns"):
             shutil.copy2(sourceDir / iconName, destinationDir / iconName)
 
-        print.success(f"Icons copied to {destinationDir}")
+        if not self.isTest:
+            print.success(f"Icons copied to {destinationDir}")
 
     def startPackageManager(self):
-        print.log(f"Installing frontend with {self.packageManager}...")
+        if not self.isTest:
+            print.log(f"Installing frontend with {self.packageManager}...")
         frontendDir = os.path.join(self.projectID, "src", "frontend")
         # ("", ""): "",
         templateMap = {
@@ -171,32 +173,32 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
             os.makedirs(destinationDir / "src" / "backend", exist_ok=True)
             shutil.copy2(templateDir / "src" / "backend" / "api.py", destinationDir / "src" / "backend" / "api.py")
 
-            print.success(f"Template files copied to {destinationDir}")
+            if not self.isTest:
+                print.success(f"Template files copied to {destinationDir}")
 
         mainScript()
         copyTemplateFiles()
+        
         pythonExecutable = self.getPythonExecutable()
         subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
+    
+        if sys.platform == "win32":
+            venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
+            subprocess.run(
+                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
+                cwd=self.projectID,
+                check=True,
+            )
+        else:
+            venvPython = f"./{self.projectID}/venv/bin/python"
+            subprocess.run(
+                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
+                cwd=self.projectID,
+                check=True,
+            )
 
         if not self.isTest:
-            if sys.platform == "win32":
-                venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
-                subprocess.run(
-                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                    cwd=self.projectID,
-                    check=True,
-                )
-            else:
-                venvPython = f"./{self.projectID}/venv/bin/python"
-                subprocess.run(
-                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                    cwd=self.projectID,
-                    check=True,
-                )
-        else:
-            print.log("Guessing it's not needed becausue it is a test.")
-
-        print.success(f"Backend scaffolded in {self.projectID}/src/backend")
+            print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
 def start(
     projectName,
@@ -218,6 +220,7 @@ def start(
         packageManager,
         needVenv,
     )
+
     init.fileSystem()
     init.copyIcons()
     init.startPackageManager()
