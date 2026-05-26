@@ -21,7 +21,8 @@ def pta(tag, color, message):
     print(
         colored(f"{tag}", color, force_color=True)
         + " " +
-        str(message)
+        str(message),
+        flush=True
     )
 
 def empty():
