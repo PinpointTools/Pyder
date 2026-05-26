@@ -16,6 +16,7 @@ class Initialize:
         framework,
         variant,
         packageManager,
+        needVenv
     ):
 
         self.projectName = projectName
@@ -25,6 +26,7 @@ class Initialize:
         self.variant = variant
         self.packageManager = packageManager
         self.qtorgtk = qtorgtk
+        self.needVenv = needVenv
 
     def resolveCommand(self, command):
         commandPath = shutil.which(command)
@@ -173,20 +175,23 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
         pythonExecutable = self.getPythonExecutable()
         subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
 
-        if sys.platform == "win32":
-            venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
-            subprocess.run(
-                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=self.projectID,
-                check=True,
-            )
+        if self.needVenv:
+            if sys.platform == "win32":
+                venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
+                subprocess.run(
+                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
+                    cwd=self.projectID,
+                    check=True,
+                )
+            else:
+                venvPython = f"./{self.projectID}/venv/bin/python"
+                subprocess.run(
+                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
+                    cwd=self.projectID,
+                    check=True,
+                )
         else:
-            venvPython = f"./{self.projectID}/venv/bin/python"
-            subprocess.run(
-                [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=self.projectID,
-                check=True,
-            )
+            print("Guessing it's not needed becausue it is a test.")
 
         print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
@@ -198,6 +203,7 @@ def start(
     framework,
     variant,
     packageManager,
+    needVenv,
 ):
     init = Initialize(
         projectName,
@@ -207,6 +213,7 @@ def start(
         framework,
         variant,
         packageManager,
+        needVenv,
     )
     init.fileSystem()
     init.copyIcons()
