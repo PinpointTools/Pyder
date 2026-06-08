@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-import time
 
 from InquirerPy import inquirer
 import src.print as print

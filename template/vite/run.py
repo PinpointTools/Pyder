@@ -10,8 +10,12 @@ import sys
 import time
 import os
 from pathlib import Path
-import window as w
 from pyder import *
+try:
+    import window as w
+except ImportError:
+    print("Warning: window module not found. Some features may not be available.")
+    w = None
 
 projectRoot = Path(__file__).resolve().parent
 frontendDir = projectRoot / "src" / "frontend"
@@ -85,7 +89,7 @@ class SeparateWindow:
     
         raise RuntimeError(
             "Could not find a terminal emulator to launch the frontend dev server. "
-            "Run `python run.py dev backend` in a separate terminal instead."
+            "Run `python run.py dev window` or `python run.py dev server` in a separate terminal instead."
         )
 
 def runDevServer():
@@ -129,9 +133,28 @@ def compileApp():
     )
     os.remove(f"{pyder_projectName}.spec")
 
+def init():
+    if sys.platform == "win32":
+        pythonVenvPath = "venv\\Scripts\\python3"
+        pipVenvPath = "venv\\Scripts\\pip3"
+    else:
+        pythonVenvPath = "venv/bin/python3"
+        pipVenvPath = "venv/bin/pip3"
+
+    print("Setting up virtual environment...")
+    subprocess.run(["python3", "-m", "venv", "venv"], cwd=projectRoot, check=True)
+
+    print("Installing Python dependencies...")
+    subprocess.run([pipVenvPath, "install", "-r", "requirements.txt"], cwd=projectRoot, check=True)
+
+    print("Installing frontend dependencies...")
+    subprocess.run([packageManager, "install"], cwd=frontendDir, check=True)
+
+    print(f"Done! Run `{pythonVenvPath} run.py dev` to start the development server.")
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["test", "compile", "dev"])
+    parser.add_argument("command", choices=["test", "compile", "dev", "init"])
     parser.add_argument("target", nargs="?", choices=["window", "server"])
     args = parser.parse_args()
 
@@ -152,6 +175,9 @@ def main():
             SeparateWindow().launchFrontendDevServerInSeparateWindow()
             SeparateWindow().waitForDevServer()
             w.startWindow(True)
+    elif args.command == "init":
+        print("Initializing project...")
+        init()
 
 if __name__ == "__main__":
     try:

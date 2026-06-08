@@ -178,27 +178,8 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
 
         mainScript()
         copyTemplateFiles()
-        
-        if not self.isTest:
-            pythonExecutable = self.getPythonExecutable()
-            subprocess.run([pythonExecutable, "-m", "venv", "venv"], cwd=self.projectID, check=True)
-            
-            if sys.platform == "win32":
-                venvPython = f".\\{self.projectID}\\venv\\Scripts\\python"
-                subprocess.run(
-                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                    cwd=self.projectID,
-                    check=True,
-                )
-            else:
-                venvPython = f"./{self.projectID}/venv/bin/python"
-                subprocess.run(
-                    [venvPython, "-m", "pip", "install", "-r", "requirements.txt"],
-                    cwd=self.projectID,
-                    check=True,
-                )
 
-            print.success(f"Backend scaffolded in {self.projectID}/src/backend")
+        print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
 def start(
     projectName,
@@ -229,25 +210,20 @@ def start(
     # yap yap
     if not init.isTest:
         print.success(f"Project initialized in {projectID}")
-        print.log(f"Before you run the app, make sure you've installed the required dependencies at `{projectID}/src/frontend/`")
-        print.log(f"The reason why this wasn't installed automatically is because of subprocess being a bitch because it can't run `{packageManager} install` @ `{projectID}/src/frontend/`")
-        print.log(f"For python libraries @ `{projectID}/requirements.txt`, it's already installed in a virtual environment. Just activate it with `source venv/bin/activate` (Linux/macOS) or `venv\\Scripts\\activate` (Windows)")
-        print.log("To run the app, use `python run.py test`. This command will build Vite, and then launch `window.py`.")
-        print.log("To open the already-built app directly, use `python window.py`.")
-        print.log("To compile the app, use `python run.py compile`. This command will build Vite and package `window.py` with PyInstaller.")
+        print.log("To install the required dependencies for the frontend and the backend, run:")
+        print.log("  python run.py init")
         print.empty()
-    
-        print.log("If you're lazy (like me), just copy this code below. This for macOS/Linux.")
-        print.log(f"  cd {projectID}/src/frontend/ && {packageManager} install && cd ../.. && venv/bin/python run.py dev")
-        print.log("For windows powershell <7.")
-        print.log(f"  cd project-test\\src\\frontend; if ($?) {{ {packageManager} install }}; if ($?) {{ cd ..\\.. }}; if ($?) {{ venv\\Scripts\\python run.py dev }}")
-        print.log("For windows powershell 7+.")
-        print.log(f"  cd {projectID}\\src\\frontend && {packageManager} install && cd ..\\.. && venv\\Scripts\\python run.py dev")
+
+        print.log("To run the development server, run:")
+        print.log("  python run.py dev")
+        print.warning("THIS MAY NOT WORK MOST OF THE TIME.")
+        print.log("Running it in a different process (window or server)")
+        print.log("  python run.py dev server")
+        print.log("  python run.py dev window")
         print.empty()
-    
-        print.log("To compile after installing the frontend dependencies, run:")
-        print.log("  `venv/bin/python run.py compile` (Linux/macOS)")
-        print.log("  `venv\\Scripts\\python run.py compile` (Windows)")
+
+        print.log("To compile the app, run:")
+        print.log("  python run.py compile")
         print.empty()
     
         print.log("Documentation @ https://github.com/PinpointTools/Pyder/wiki")
