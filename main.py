@@ -36,7 +36,7 @@ def argParser():
         if version != latestVersion:
             print.warning(f"your pyder is out of date! ({version} != {latestVersion})")
         else:
-            print.log(f"your pyder is up to date! ({version} == {latestVersion})")
+            print.success(f"your pyder is up to date! ({version} == {latestVersion})")
     return args
 
 if __name__ == "__main__":
