@@ -163,6 +163,25 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
                 f.write(pyderProject)
 ##########################################################################################
 
+        def gtkorqt():
+            with open(f"{self.projectID}/requirements.txt", "w") as f:
+                f.write("pyinstaller\npywebview sys_platform != 'linux'\n")
+            if self.qtorgtk == "gtk":
+                packages = ["pywebview[gtk] sys_platform == 'linux'"]
+                with open(f"{self.projectID}/requirements.txt", "a") as f:
+                    f.write("\n".join(packages))
+            elif self.qtorgtk == "qt":
+                packages = [
+                    "pywebview[qt] sys_platform == 'linux'",
+                    "qtpy",
+                    "PyQt6",
+                    "PyQt6-WebEngine",
+                ]
+                with open(f"{self.projectID}/requirements.txt", "a") as f:
+                    f.write("\n".join(packages))
+            else:
+                print.error("Invalid qtorgtk value")
+
         def copyTemplateFiles():
             templateDir = SOURCE_ROOT / "template" / "vite"
             destinationDir = Path(self.projectID)

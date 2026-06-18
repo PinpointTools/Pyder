@@ -1,3 +1,0 @@
-pyinstaller
-pywebview; sys_platform != "linux"
-pywebview[gtk]; sys_platform == "linux"
