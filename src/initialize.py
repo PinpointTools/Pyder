@@ -186,7 +186,7 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
             templateDir = SOURCE_ROOT / "template" / "vite"
             destinationDir = Path(self.projectID)
 
-            for file in ("window.py", "run.py", "requirements.txt", ".gitignore"):
+            for file in ("window.py", "run.py", ".gitignore"):
                 shutil.copy2(templateDir / file, destinationDir / file)
 
             os.makedirs(destinationDir / "src" / "backend", exist_ok=True)

@@ -1,7 +1,7 @@
 import shutil
 import src.initialize as init
 import src.print as print
-import os
+import sys
 
 def startTest():
     frameworks = [
@@ -47,4 +47,4 @@ if __name__ == "__main__":
         print.success("All tests completed successfully.")
     except Exception as e:
         print.error(e)
-        os.exit(1)
+        sys.exit(1)
