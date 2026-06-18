@@ -7,14 +7,12 @@ class API:
     def __init__(self):
         self.window = wv.active_window()
         self.appID = f"{pyder_domainSystem}.{pyder_projectID}"
-    
+
     def getConfigPath(self):
         if sys.platform == "win32":
-            configPath = os.path.join(os.getenv("APPDATA"), self.appID)
+            base = os.environ.get("APPDATA", "")
         elif sys.platform == "darwin":
-            configPath = os.path.join(os.getenv("HOME"), "Library", "Application Support", self.appID)
-        elif sys.platform == "linux":
-            configPath = os.path.join(os.getenv("HOME"), ".config", self.appID)
+            base = os.path.join(os.path.expanduser("~"), "Library", "Application Support")
         else:
-            configPath = os.path.join(os.getenv("HOME"), ".config", self.appID)
-        return configPath
+            base = os.path.join(os.path.expanduser("~"), ".config")
+        return os.path.join(base, self.appID)
