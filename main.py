@@ -19,7 +19,7 @@ def argParser():
     if args.command is None:
         init.start()
     elif args.command == "run":
-        subprocess.run([sys.executable, "run.py", *args.runArgs])
+        subprocess.run(["python3", "run.py", *args.runArgs])
     elif args.command == "version":
         url = "https://raw.githubusercontent.com/PinpointTools/Pyder/refs/heads/main/version.txt"
         try:
