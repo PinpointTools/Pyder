@@ -16,7 +16,7 @@ a = Analysis(
   ['main.py'],
   pathex=[],
   binaries=[],
-  datas=[('icon', 'icon'), ('template', 'template'), ('version.txt', 'version.txt')],
+  datas=[('icon', 'icon'), ('template', 'template'), ('version.txt', '.')],
   hookspath=[],
   hooksconfig={},
   runtime_hooks=[],

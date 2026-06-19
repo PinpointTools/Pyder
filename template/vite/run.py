@@ -135,10 +135,8 @@ def compileApp():
 
 def init():
     if sys.platform == "win32":
-        pythonVenvPath = "venv\\Scripts\\python3"
         pipVenvPath = "venv\\Scripts\\pip3"
     else:
-        pythonVenvPath = "venv/bin/python3"
         pipVenvPath = "venv/bin/pip3"
 
     print("Setting up virtual environment...")
@@ -150,7 +148,7 @@ def init():
     print("Installing frontend dependencies...")
     subprocess.run([packageManager, "install"], cwd=frontendDir, check=True)
 
-    print(f"Done! Run `{pythonVenvPath} run.py dev` to start the development server.")
+    print("Done! Run `pyder run dev (window/server)` to start the development server.")
 
 def main():
     parser = argparse.ArgumentParser()

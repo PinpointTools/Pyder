@@ -3,6 +3,7 @@ import src.print as print
 import argparse
 import subprocess
 import sys
+import os
 import urllib.request
 
 def argParser():
@@ -28,8 +29,14 @@ def argParser():
         except Exception as e:
             print.error(f"Error fetching URL: {e}")
             return None
-        
-        with open("version.txt", "r") as f:
+
+        if getattr(sys, 'frozen', False):
+            basePath = sys._MEIPASS
+        else:
+            basePath = os.path.dirname(os.path.abspath(__file__))
+
+        versionPath = os.path.join(basePath, "version.txt")
+        with open(versionPath, "r") as f:
             version = f.read().strip()
         print.log(f"pyder ver; {version}")
         
