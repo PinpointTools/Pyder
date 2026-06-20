@@ -8,6 +8,7 @@ import subprocess
 import sys
 import os
 import urllib.request
+from InquirerPy import inquirer
 
 if getattr(sys, 'frozen', False):
     basePath = sys._MEIPASS
@@ -44,7 +45,18 @@ def argParser():
         if os.path.exists(".venv") or os.path.exists("venv"):
             subprocess.run([f"{misc.getPython()}python3", "run.py", *args.runArgs])
         else:
-            return print.error("No virtual environment found. Or it's a different folder name? We'll never know!")
+            print.error("No virtual environment found.")
+            _continue = inquirer.confirm(
+                message="Do you want to create a virtual environment?",
+            ).execute()
+
+            if _continue:
+                subprocess.run(["python3", "-m", "venv", ".venv"])
+                print.success("Virtual environment created successfully.")
+                print.log("Continuing with the command...")
+                subprocess.run([f"{misc.getPython()}python3", "run.py", *args.runArgs])
+            else:
+                return
     elif args.command == "version":
         url = "https://raw.githubusercontent.com/PinpointTools/Pyder/refs/heads/main/version.txt"
         try:
