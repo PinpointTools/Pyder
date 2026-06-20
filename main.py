@@ -41,7 +41,10 @@ def argParser():
     if args.command is None:
         inter.start()
     elif args.command == "run":
-        subprocess.run(["python3", "run.py", *args.runArgs])
+        if os.path.exists(".venv") or os.path.exists("venv"):
+            subprocess.run([f"{misc.getPython()}python3", "run.py", *args.runArgs])
+        else:
+            return print.error("No virtual environment found. Or it's a different folder name? We'll never know!")
     elif args.command == "version":
         url = "https://raw.githubusercontent.com/PinpointTools/Pyder/refs/heads/main/version.txt"
         try:
@@ -66,15 +69,8 @@ def argParser():
             if args.type == "frontend":
                 subprocess.run(["npm", "install", *args.package], cwd="src/frontend")
             elif args.type == "backend":
-                if sys.platform == "win32":
-                    pathToScripts = "\\Scripts\\"
-                else:
-                    pathToScripts = "/bin/"
-                    
-                if os.path.exists(".venv"):
-                    subprocess.run([f".venv{pathToScripts}pip", "install", *args.package])
-                elif os.path.exists("venv"):
-                    subprocess.run([f"venv{pathToScripts}pip", "install", *args.package])
+                if os.path.exists(".venv") or os.path.exists("venv"):
+                    subprocess.run([f"{misc.getPython()}pip", "install", *args.package])
                 else:
                     return print.error("No virtual environment found. Or it's a different folder name? We'll never know!")
             print.success(f"Sucsesfully installed {args.package} for {args.type}.")

@@ -166,11 +166,11 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
         def gtkorqt():
             with open(f"{self.projectID}/requirements.txt", "w") as f:
                 f.write("pyinstaller\npywebview sys_platform != 'linux'\n")
-            if self.qtorgtk == "gtk":
+            if self.qtorgtk == "GTK":
                 packages = ["pywebview[gtk] sys_platform == 'linux'"]
                 with open(f"{self.projectID}/requirements.txt", "a") as f:
                     f.write("\n".join(packages))
-            elif self.qtorgtk == "qt":
+            elif self.qtorgtk == "Qt":
                 packages = [
                     "pywebview[qt] sys_platform == 'linux'",
                     "qtpy",
