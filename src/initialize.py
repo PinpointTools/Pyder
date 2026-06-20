@@ -197,6 +197,7 @@ pyder_window_initSize_v1, pyder_window_initSize_v2 = pyder_window["initSize"]"""
 
         mainScript()
         copyTemplateFiles()
+        gtkorqt()
 
         print.success(f"Backend scaffolded in {self.projectID}/src/backend")
 
