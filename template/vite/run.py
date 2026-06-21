@@ -134,10 +134,21 @@ def compileApp():
     os.remove(f"{pyder_projectName}.spec")
 
 def init():
-    if sys.platform == "win32":
-        pipVenvPath = "venv\\Scripts\\pip3"
+    pipVenvPath = ""
+    if os.path.exists("venv") or os.path.exists(".venv"):
+        if os.path.exists(".venv"):
+            if sys.platform == "win32":
+                pipVenvPath = ".venv/Scripts/"
+            else:
+                pipVenvPath = ".venv/bin/"
+        else:
+            if sys.platform == "win32":
+                pipVenvPath = "venv/Scripts/"
+            else:
+                pipVenvPath = "venv/bin/"
     else:
-        pipVenvPath = "venv/bin/pip3"
+        print("Setting up virtual environment...")
+        subprocess.run(["python3", "-m", "venv", ".venv"], cwd=projectRoot, check=True)
 
     print("Setting up virtual environment...")
     subprocess.run(["python3", "-m", "venv", "venv"], cwd=projectRoot, check=True)
